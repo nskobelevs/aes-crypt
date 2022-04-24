@@ -241,7 +241,7 @@ mod tests {
     #[test]
     pub fn test_sbox() {
         for value in 0..=255u8 {
-            assert_eq!(value, inverse_sbox(sbox(value)), "expected inverse_sbox(sbox({0})) == {0}", value);
+            assert_eq_hex!(value, inverse_sbox(sbox(value)), "expected inverse_sbox(sbox({0:#04x})) == {0:#04x}", value);
         }
     }
 
@@ -277,7 +277,7 @@ mod tests {
         assert_eq!(expected.len(), w.len(), "expected length of expanded key to be {0}", expected.len());
 
         for i in 0..w.len() {
-            assert_eq!(expected[i], w[i], "Key expansion for index {} doesn't match {:#010x?} != {:#010x?}", i, w[i], expected[i]);
+            assert_eq_hex!(expected[i], w[i], "Key expansion for index {} doesn't match", i);
         }
     }
 
@@ -305,7 +305,7 @@ mod tests {
         assert_eq!(expected.len(), w.len(), "expected length of expanded key to be {0}", expected.len());
 
         for i in 0..w.len() {
-            assert_eq!(expected[i], w[i], "Key expansion for index {} doesn't match {:#010x?} != {:#010x?}", i, w[i], expected[i]);
+            assert_eq_hex!(expected[i], w[i], "Key expansion for index {} doesn't match", i);
         }
     }
 
@@ -335,33 +335,36 @@ mod tests {
         assert_eq!(expected.len(), w.len(), "expected length of expanded key to be {0}", expected.len());
 
         for i in 0..w.len() {
-            assert_eq!(expected[i], w[i], "Key expansion for index {} doesn't match {:#010x?} != {:#010x?}", i, w[i], expected[i]);
+            assert_eq_hex!(expected[i], w[i], "Key expansion for index {} doesn't match", i);
         }
     }
 
     #[test]
     pub fn test_add_round_key() {
-        let mut input: [u32; 4] = [0x3243f6a8, 0x885a308d, 0x313198a2, 0xe0370734];
+        let input: [u32; 4] = [0x3243f6a8, 0x885a308d, 0x313198a2, 0xe0370734];
+        let mut state = input.clone();
+
         let key: [u32; 4] = [0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c];
 
         let expanded_key = expand_128_bit_key(key);
 
-        AddRoundKey(&mut input, &expanded_key[0..4]);
+        AddRoundKey(&mut state, &expanded_key[0..4]);
 
         let expected: [u32; 4] = [0x193de3be, 0xa0f4e22b, 0x9ac68d2a, 0xe9f84808];
 
-        assert_eq!(expected, input, "AddRoundKey({:#010x?}, {:#010x?}) != {:#010x?}", input, expanded_key[0], expected);
+        assert_eq_hex!(expected, state, "AddRoundKey({:#010x?}, {:#010x?}) output doesn't match", input, expanded_key[0]);
     }
 
     #[test]
     pub fn test_sub_bytes() {
-        let mut input: [u32; 4] = [0x193de3be, 0xa0f4e22b, 0x9ac68d2a, 0xe9f84808];
+        let input: [u32; 4] = [0x193de3be, 0xa0f4e22b, 0x9ac68d2a, 0xe9f84808];
+        let mut state = input.clone();
 
-        SubBytes(&mut input);
+        SubBytes(&mut state);
 
         let expected: [u32; 4] = [0xd42711ae, 0xe0bf98f1, 0xb8b45de5, 0x1e415230];
 
-        assert_eq!(expected, input, "SubBytes({:#010x?}) != {:#010x?}", input, expected);
+        assert_eq_hex!(expected, state, "SubBytes({:#010x?}) output doesn't match", input);
     }
 
     #[test]
@@ -372,7 +375,7 @@ mod tests {
 
         let expected: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
 
-        assert_eq!(expected, input, "ShiftRows({:#010x?}) != {:#010x?}", input, expected);
+        assert_eq_hex!(expected, input, "ShiftRows({:#010x?}) otuput doesn't match", input);
     }
 
     #[test]
@@ -381,24 +384,25 @@ mod tests {
         let expected: [u32; 6] = [0x8e4da1bc, 0x9fdc589d, 0x01010101, 0xc6c6c6c6, 0xd5d5d7d6, 0x4d7ebdf8];
 
         for (&input, &expected) in inputs.iter().zip(expected.iter()) {
-            assert_eq!(expected, MixColumn(input), "MixColumn({:#010x}) != {:#010x}", input, expected);
+            assert_eq_hex!(expected, MixColumn(input), "MixColumn({:#010x}) output doesn't match", input);
         }
     }
 
     #[test]
     pub fn test_mix_columns() {
-        let mut input: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
+        let input: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
+        let mut state: [u32; 4] = input.clone();
 
-        MixColumns(&mut input);
+        MixColumns(&mut state);
 
         let expected: [u32; 4] = [0x046681e5, 0xe0cb199a, 0x48f8d37a, 0x2806264c];
 
-        assert_eq!(expected, input, "MixColumns({:#010x?}) != {:#010x?}", input, expected);
+        assert_eq_hex!(expected, state, "MixColumns({:#010x?}) output doesn't match", input);
     }
 
     pub fn subtest_aes_128(mut state: [u32; 4], key: [u32; 4], expected: [u32; 4]) {
         aes_128(&mut state, key);
-        assert_eq!(expected, state, "AES-128 output doesn't match expected")
+        assert_eq_hex!(expected, state, "AES-128 output doesn't match expected")
     }
 
     #[test]
@@ -416,7 +420,7 @@ mod tests {
 
         aes_196(&mut input, key);
 
-        assert_eq!(expected, input, "AES-196 output doesn't match expected")
+        assert_eq_hex!(expected, input, "AES-196 output doesn't match expected")
     }
 
     #[test]
@@ -427,6 +431,6 @@ mod tests {
 
         aes_256(&mut input, key);
 
-        assert_eq!(expected, input, "AES-256 output doesn't match expected")
+        assert_eq_hex!(expected, input, "AES-256 output doesn't match expected")
     }
 }
