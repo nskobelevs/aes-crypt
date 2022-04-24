@@ -36,7 +36,8 @@ pub const INVERSE_SBOX: [u8; 256] = [
     0x17u8, 0x2bu8, 0x04u8, 0x7eu8, 0xbau8, 0x77u8, 0xd6u8, 0x26u8, 0xe1u8, 0x69u8, 0x14u8, 0x63u8, 0x55u8, 0x21u8, 0x0cu8, 0x7du8,
 ];
 
-pub const RCON: [u32; 10] = [
+pub const RCON: [u32; 11] = [
+    0x0, // Not used
     0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
     0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000
 ];
@@ -172,7 +173,7 @@ pub const fn inverse_sbox(value: u8) -> u8 {
 /// panics if i is out of bounds 1..=10
 #[inline(always)]
 pub const fn rcon(i: u8) -> u32 {
-    RCON[(i - 1) as usize]
+    RCON[i as usize]
 }
 
 #[cfg(test)]
