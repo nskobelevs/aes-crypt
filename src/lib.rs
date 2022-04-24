@@ -49,7 +49,11 @@ pub const fn RotWord(word: u32) -> u32 {
 }
 
 const fn rotl_word(word: u32, byte_count: u8) -> u32 {
-    (word << (byte_count * 8)) | (word >> (32 - (byte_count * 8)))
+    if byte_count % 8 == 0 {
+        return word;
+    }
+
+    (word << ((byte_count % 8) * 8)) | (word >> (32 - ((byte_count % 8) * 8)))
 }
 
 /// Applies the AES S-box to each byte of a word
@@ -252,6 +256,16 @@ mod tests {
 
         for (&input, &output) in inputs.iter().zip(outputs.iter()) {
             assert_eq_hex!(output, RotWord(input), "RotWord({}) output doesn't match expected", input);
+        }
+    }
+
+    #[test]
+    pub fn test_rotl_word() {
+        let inputs: [(u32, u8); 5] = [(0x12345678, 0), (0x12345678, 1), (0x12345678, 2), (0x12345678, 3), (0x12345678, 8)];
+        let expected: [u32; 5] = [0x12345678, 0x34567812, 0x56781234, 0x78123456, 0x12345678];
+
+        for (&(input, shift), &output) in inputs.iter().zip(expected.iter()) {
+            assert_eq_hex!(output, rotl_word(input, shift), "rotl_word({}, {}) output doesn't match expected", input, shift);
         }
     }
 
