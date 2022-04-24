@@ -3,7 +3,7 @@ use crate::{common::{gmul2, gmul3}, SubWord};
 macro_rules! create_aes_ecryption_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
         paste! {
-            #[doc = concat!("Performs AES-", stringify!($key_length), " encryption on a block with a ", stringify!($key_length), "-bit key length.")]
+            #[doc = concat!("Performs AES-", stringify!($key_length), " encryption on a block given a ", stringify!($key_length), "-bit key")]
             pub fn [<aes_ $key_length _encrypt>](state: &mut [u32; 4], key: [u32; $key_words_count]) {
                 let expanded_key = [<expand_ $key_length _bit_key>](key);
 

@@ -3,7 +3,7 @@ use crate::{inverse_sbox, common::{gmul14, gmul11, gmul9, gmul13}};
 macro_rules! create_aes_decryption_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
         paste! {
-            #[doc = concat!("Performs AES-", stringify!($key_length), " decryption on a block with a ", stringify!($key_length), "-bit key length.")]
+            #[doc = concat!("Performs AES-", stringify!($key_length), " decryption on a block given a ", stringify!($key_length), "-bit key")]
             pub fn [<aes_ $key_length _decrypt>](state: &mut [u32; 4], key: [u32; $key_words_count]) {
                 let expanded_key = [<expand_ $key_length _bit_key>](key);
 
