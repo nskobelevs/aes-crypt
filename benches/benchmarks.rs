@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use aes::*;
+use aes_crypt::*;
 use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 
 fn subword_benchmark(c: &mut Criterion) {
