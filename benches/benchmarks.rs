@@ -41,7 +41,7 @@ fn aes_benchmark(c: &mut Criterion) {
             let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
             let key: [u32; 4] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f];
 
-            aes_128(black_box(&mut input), black_box(key));
+            aes_128_encrypt(black_box(&mut input), black_box(key));
         })
     );
 
@@ -50,7 +50,7 @@ fn aes_benchmark(c: &mut Criterion) {
             let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
             let key: [u32; 6] =       [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617];
 
-            aes_196(black_box(&mut input), black_box(key));
+            aes_196_encrypt(black_box(&mut input), black_box(key));
         })
     );
 
@@ -59,7 +59,7 @@ fn aes_benchmark(c: &mut Criterion) {
             let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
             let key: [u32; 8] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f];
 
-            aes_256(black_box(&mut input), black_box(key));
+            aes_256_encrypt(black_box(&mut input), black_box(key));
         })
     );
 
@@ -68,7 +68,7 @@ fn aes_benchmark(c: &mut Criterion) {
 
 criterion_group!{
     name = benches;
-    config = Criterion::default().warm_up_time(Duration::from_secs(5)).sample_size(1000);
+    config = Criterion::default().warm_up_time(Duration::from_secs(5)).sample_size(10000);
     targets = subword_benchmark, key_expansion_benchmark, aes_benchmark
 }
 

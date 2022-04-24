@@ -179,3 +179,17 @@ pub const fn rcon(i: u8) -> u32 {
 
     RCON[(i - 1) as usize]
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_hex::assert_eq_hex;
+
+    use super::*;
+
+    #[test]
+    pub fn test_sbox() {
+        for value in 0..=255u8 {
+            assert_eq_hex!(value, inverse_sbox(sbox(value)), "expected inverse_sbox(sbox({0:#04x})) == {0:#04x}", value);
+        }
+    }
+}
