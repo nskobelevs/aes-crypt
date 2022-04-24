@@ -234,12 +234,24 @@ pub fn MixColumns(state: &mut [u32; 4]) {
 
 #[cfg(test)]
 mod tests {
+    use assert_hex::assert_eq_hex;
+
     use super::*;
 
     #[test]
     pub fn test_sbox() {
         for value in 0..=255u8 {
             assert_eq!(value, inverse_sbox(sbox(value)), "expected inverse_sbox(sbox({0})) == {0}", value);
+        }
+    }
+
+    #[test]
+    pub fn test_rot_word() {
+        let inputs: [u32; 4] = [0x12345678, 0xaabbccdd, 0x87654321, 0x98abcdef];
+        let outputs: [u32; 4] = [0x34567812, 0xbbccddaa, 0x65432187, 0xabcdef98];
+
+        for (&input, &output) in inputs.iter().zip(outputs.iter()) {
+            assert_eq_hex!(output, RotWord(input), "RotWord({}) output doesn't match expected", input);
         }
     }
 
