@@ -1,5 +1,31 @@
 use crate::{inverse_sbox, common::{transpose, rotl_word, gmul14, gmul11, gmul9, gmul13}};
 
+macro_rules! create_aes_decryption_functions {
+    ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
+        paste! {
+            #[doc = concat!("Performs AES-", stringify!($key_length), " decryption on a block with a ", stringify!($key_length), "-bit key length.")]
+            pub fn [<aes_ $key_length _decrypt>](state: &mut [u32; 4], key: [u32; $key_words_count]) {
+                let expanded_key = [<expand_ $key_length _bit_key>](key);
+
+                AddRoundKey(state, &expanded_key[($expanded_key_size - 4)..$expanded_key_size]);
+
+                for i in (2..$round_count).rev() {
+                        InvShiftRows(state);
+                        InvSubBytes(state);
+                        AddRoundKey(state, &expanded_key[(i-1)*4..i*4]);
+                        InvMixColumns(state);
+                }
+
+                InvShiftRows(state);
+                InvSubBytes(state);
+                AddRoundKey(state, &expanded_key[0..4]);
+            }
+
+        }
+    };
+}
+pub(crate) use create_aes_decryption_functions;
+
 /// Applies the AES inverse S-box to each byte of a word
 #[allow(non_snake_case)]
 pub const fn InvSubWord(word: u32) -> u32 {
@@ -72,6 +98,8 @@ pub fn InvMixColumns(state: &mut [u32; 4]) {
 mod tests {
     use assert_hex::assert_eq_hex;
 
+    use crate::{aes_128_decrypt, aes_196_decrypt, aes_256_decrypt};
+
     use super::*;
 
     #[test]
@@ -94,5 +122,38 @@ mod tests {
         let expected: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
 
         assert_eq_hex!(expected, state, "InvMixColumns({:#010x?}) output doesn't match", input);
+    }
+
+    #[test]
+    pub fn test_aes_128_decrypt() {
+        let mut input: [u32; 4] = [0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a];
+        let key: [u32; 4] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f];
+        let expected: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+
+        aes_128_decrypt(&mut input, key);
+
+        assert_eq_hex!(expected, input, "AES-128 output doesn't match expected")
+    }
+
+    #[test]
+    pub fn test_aes_196_decrypt() {
+        let mut input: [u32; 4] =  [0xdda97ca4, 0x864cdfe0, 0x6eaf70a0, 0xec0d7191];
+        let key: [u32; 6] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617];
+        let expected: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+
+        aes_196_decrypt(&mut input, key);
+
+        assert_eq_hex!(expected, input, "AES-196 output doesn't match expected")
+    }
+
+    #[test]
+    pub fn test_aes_256_decrypt() {
+        let mut input: [u32; 4] = [0x8ea2b7ca, 0x516745bf, 0xeafc4990, 0x4b496089];
+        let key: [u32; 8] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f];
+        let expected: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+
+        aes_256_decrypt(&mut input, key);
+
+        assert_eq_hex!(expected, input, "AES-256 output doesn't match expected")
     }
 }

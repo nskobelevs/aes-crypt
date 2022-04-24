@@ -14,12 +14,22 @@ pub use common::{AddRoundKey, SubWord};
 
 use key_expansion::create_key_expansion_functions;
 use encryption::create_aes_ecryption_functions;
+use decryption::create_aes_decryption_functions;
+
+pub fn print_state(i: usize, s: &str, state: &[u32]) {
+    print!("round[{:2}].{: <10}", i, s);
+    for column in state {
+        print!("{:08x}", column);
+    }
+    println!();
+}
 
 macro_rules! create_aes_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
         paste! {
             create_key_expansion_functions!($key_length, $key_words_count, $round_count, $expanded_key_size);
             create_aes_ecryption_functions!($key_length, $key_words_count, $round_count, $expanded_key_size);
+            create_aes_decryption_functions!($key_length, $key_words_count, $round_count, $expanded_key_size);
         }
     };
 }

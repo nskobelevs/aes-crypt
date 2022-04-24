@@ -3,7 +3,7 @@ use crate::{common::{transpose, rotl_word, gmul2, gmul3}, SubWord};
 macro_rules! create_aes_ecryption_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
         paste! {
-            #[doc = concat!("Performs AES-", stringify!($key_length), " on a block with a ", stringify!($key_length), "-bit key length.")]
+            #[doc = concat!("Performs AES-", stringify!($key_length), " encryption on a block with a ", stringify!($key_length), "-bit key length.")]
             pub fn [<aes_ $key_length _encrypt>](state: &mut [u32; 4], key: [u32; $key_words_count]) {
                 let expanded_key = [<expand_ $key_length _bit_key>](key);
 
@@ -146,7 +146,7 @@ mod tests {
     #[test]
     pub fn test_aes_196_encrypt() {
         let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
-        let key: [u32; 6] =       [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617];
+        let key: [u32; 6] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617];
         let expected: [u32; 4] =  [0xdda97ca4, 0x864cdfe0, 0x6eaf70a0, 0xec0d7191];
 
         aes_196_encrypt(&mut input, key);
