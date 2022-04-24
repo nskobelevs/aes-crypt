@@ -9,7 +9,6 @@ fn subword_benchmark(c: &mut Criterion) {
 
 fn key_expansion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("Key Expansion");
-    group.measurement_time(Duration::from_secs(15));
 
     group.bench_function("128-bit", |b|
         b.iter(||
@@ -32,9 +31,9 @@ fn key_expansion_benchmark(c: &mut Criterion) {
     group.finish();
 }
 
-fn aes_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("AES");
-    group.measurement_time(Duration::from_secs(30)).throughput(Throughput::Bytes(16));
+fn aes_encryption_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Encrytion");
+    group.throughput(Throughput::Bytes(16));
 
     group.bench_function("AES-128", |b|
         b.iter(|| {
@@ -66,10 +65,44 @@ fn aes_benchmark(c: &mut Criterion) {
     group.finish();
 }
 
+fn aes_decryption_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Decryption");
+    group.measurement_time(Duration::from_secs(30)).throughput(Throughput::Bytes(16));
+
+    group.bench_function("AES-128", |b|
+        b.iter(|| {
+            let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+            let key: [u32; 4] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f];
+
+            aes_128_decrypt(black_box(&mut input), black_box(key));
+        })
+    );
+
+    group.bench_function("AES-196", |b|
+        b.iter(|| {
+            let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+            let key: [u32; 6] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617];
+
+            aes_196_decrypt(black_box(&mut input), black_box(key));
+        })
+    );
+
+    group.bench_function("AES-256", |b|
+        b.iter(|| {
+            let mut input: [u32; 4] = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff];
+            let key: [u32; 8] = [0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191a1b, 0x1c1d1e1f];
+
+            aes_256_decrypt(black_box(&mut input), black_box(key));
+        })
+    );
+
+    group.finish();
+}
+
 criterion_group!{
     name = benches;
-    config = Criterion::default().warm_up_time(Duration::from_secs(5)).sample_size(10000);
-    targets = subword_benchmark, key_expansion_benchmark, aes_benchmark
+    config = Criterion::default().warm_up_time(Duration::from_secs(5)).sample_size(2500);
+    targets = subword_benchmark, key_expansion_benchmark, aes_encryption_benchmark, aes_decryption_benchmark
 }
 
 criterion_main!(benches);
