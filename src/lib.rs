@@ -68,6 +68,22 @@ pub const fn SubWord(word: u32) -> u32 {
     (s0 << 24) | (s1 << 16) | (s2 << 8) | s3
 }
 
+/// Applies the AES inverse S-box to each byte of a word
+#[allow(non_snake_case)]
+pub const fn InvSubWord(word: u32) -> u32 {
+    let b0 = (word >> 24) as u8;
+    let b1 = (word >> 16) as u8;
+    let b2 = (word >> 8) as u8;
+    let b3 = (word) as u8;
+
+    let s0 = inverse_sbox(b0) as u32;
+    let s1 = inverse_sbox(b1) as u32;
+    let s2 = inverse_sbox(b2) as u32;
+    let s3 = inverse_sbox(b3) as u32;
+
+    (s0 << 24) | (s1 << 16) | (s2 << 8) | s3
+}
+
 macro_rules! create_aes_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
         paste! {
@@ -127,11 +143,19 @@ pub fn AddRoundKey(state: &mut [u32; 4], round_key: &[u32]) {
     }
 }
 
-/// Performs the AES-128 S-box on each byte of a block
+/// Performs the AES S-box on each byte of a block
 #[allow(non_snake_case)]
 pub fn SubBytes(state: &mut [u32; 4]) {
     for i in 0..state.len() {
         state[i] = SubWord(state[i]);
+    }
+}
+
+/// Performs the inverse AES S-box on each byte of a block
+#[allow(non_snake_case)]
+pub fn InvSubBytes(state: &mut [u32; 4]) {
+    for i in 0..state.len() {
+        state[i] = InvSubWord(state[i]);
     }
 }
 
