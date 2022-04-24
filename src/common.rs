@@ -1,12 +1,9 @@
 use paste::paste;
 use crate::constants::*;
 
+#[inline]
 pub const fn rotl_word(word: u32, byte_count: u8) -> u32 {
-    if byte_count % 8 == 0 {
-        return word;
-    }
-
-    (word << ((byte_count % 8) * 8)) | (word >> (32 - ((byte_count % 8) * 8)))
+    (word << (byte_count * 8)) | (word >> (32 - (byte_count * 8)))
 }
 
 /// Transposes the 4x4 matrix of bytes in the state
@@ -67,7 +64,7 @@ mod tests {
 
     #[test]
     pub fn test_rotl_word() {
-        let inputs: [(u32, u8); 5] = [(0x12345678, 0), (0x12345678, 1), (0x12345678, 2), (0x12345678, 3), (0x12345678, 8)];
+        let inputs: [(u32, u8); 3] = [(0x12345678, 1), (0x12345678, 2), (0x12345678, 3)];
         let expected: [u32; 5] = [0x12345678, 0x34567812, 0x56781234, 0x78123456, 0x12345678];
 
         for (&(input, shift), &output) in inputs.iter().zip(expected.iter()) {
