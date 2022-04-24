@@ -76,6 +76,14 @@ mod tests {
     }
 
     #[test]
+    pub fn test_sub_word() {
+        let input: u32 = 0x01020304;
+        let expected = (sbox(0x01) as u32) << 24 | (sbox(0x02) as u32) << 16 | (sbox(0x03) as u32) << 8 | sbox(0x04) as u32;
+
+        assert_eq_hex!(expected, SubWord(input), "SubWord({:#010x}) output doesn't match expected", input);
+    }
+
+    #[test]
     pub fn test_add_round_key() {
         let input: [u32; 4] = [0x3243f6a8, 0x885a308d, 0x313198a2, 0xe0370734];
         let mut state = input.clone();
