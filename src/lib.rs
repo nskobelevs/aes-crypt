@@ -4,30 +4,7 @@ mod constants;
 
 use crate::constants::*;
 
-/// Puts a value through the Rijndael S-box
-pub const fn sbox(value: u8) -> u8 {
-    SBOX[value as usize]
-}
-
-/// Puts a value through the inverse Rijndael S-box
-pub const fn inverse_sbox(value: u8) -> u8 {
-    INVERSE_SBOX[value as usize]
-}
-
-/// Returns the round constant for the round i of key-expansion
-///
-/// panics if i is out of bounds 1..=10
-pub const fn rcon(i: u8) -> u32 {
-    if i < 1 {
-        panic!("rcon() called with i < 1");
-    }
-
-    if i > 10 {
-        panic!("rcon() called with i > 10");
-    }
-
-    RCON[(i - 1) as usize]
-}
+pub use crate::constants::{sbox, inverse_sbox, rcon};
 
 macro_rules! create_gmul_funcs {
     ( $( $n:literal ),* ) => {$(
