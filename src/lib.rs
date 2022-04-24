@@ -188,6 +188,25 @@ pub fn ShiftRows(state: &mut [u32; 4]) {
     }
 }
 
+/// Performs the inverse shift rows operation, shifting every row circularly to the left by one byte
+///
+/// As specified by AES, the input is in column-major order
+#[allow(non_snake_case)]
+pub fn InvShiftRows(state: &mut [u32; 4]) {
+    let rows = transpose(*state);
+
+    let shifted_rows = transpose([
+        rows[0],
+        rotl_word(rows[1], 3),
+        rotl_word(rows[2], 2),
+        rotl_word(rows[3], 1)
+    ]);
+
+    for i in 0..state.len() {
+        state[i] = shifted_rows[i];
+    }
+}
+
 /// Performs the mix column operation on a word
 #[allow(non_snake_case)]
 pub const fn MixColumn(word: u32) -> u32 {
