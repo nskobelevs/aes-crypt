@@ -227,6 +227,22 @@ pub const fn MixColumn(word: u32) -> u32 {
     (d0 as u32) << 24 | (d1 as u32) << 16 | (d2 as u32) << 8 | d3 as u32
 }
 
+/// Performs the inverse mix column operation on a word
+#[allow(non_snake_case)]
+pub const fn InvMixColumn(word: u32) -> u32 {
+    let b0 = (word >> 24) as u8;
+    let b1 = (word >> 16) as u8;
+    let b2 = (word >> 8) as u8;
+    let b3 = word as u8;
+
+    let d0 = gmul14(b0) ^ gmul11(b1) ^ gmul13(b2) ^ gmul9(b3);
+    let d1 = gmul9(b0) ^ gmul14(b1) ^ gmul11(b2) ^ gmul13(b3);
+    let d2 = gmul13(b0) ^ gmul9(b1) ^ gmul14(b2) ^ gmul11(b3);
+    let d3 = gmul11(b0) ^ gmul13(b1) ^ gmul9(b2) ^ gmul14(b3);
+
+    (d0 as u32) << 24 | (d1 as u32) << 16 | (d2 as u32) << 8 | d3 as u32
+}
+
 /// Performs the mix column operation on each word of the state
 #[allow(non_snake_case)]
 pub fn MixColumns(state: &mut [u32; 4]) {
@@ -234,6 +250,15 @@ pub fn MixColumns(state: &mut [u32; 4]) {
     state[1] = MixColumn(state[1]);
     state[2] = MixColumn(state[2]);
     state[3] = MixColumn(state[3]);
+}
+
+/// Performs the inverse mix column operation on each word of the state
+#[allow(non_snake_case)]
+pub fn InvMixColumns(state: &mut [u32; 4]) {
+    state[0] = InvMixColumn(state[0]);
+    state[1] = InvMixColumn(state[1]);
+    state[2] = InvMixColumn(state[2]);
+    state[3] = InvMixColumn(state[3]);
 }
 
 #[cfg(test)]
@@ -403,6 +428,16 @@ mod tests {
     }
 
     #[test]
+    pub fn test_inverse_mix_column() {
+        let inputs: [u32; 6] = [0x8e4da1bc, 0x9fdc589d, 0x01010101, 0xc6c6c6c6, 0xd5d5d7d6, 0x4d7ebdf8];
+        let expected: [u32; 6] = [0xdb135345, 0xf20a225c, 0x01010101, 0xc6c6c6c6, 0xd4d4d4d5, 0x2d26314c];
+
+        for (&input, &expected) in inputs.iter().zip(expected.iter()) {
+            assert_eq_hex!(expected, InvMixColumn(input), "InvMixColumn({:#010x}) output doesn't match", input);
+        }
+    }
+
+    #[test]
     pub fn test_mix_columns() {
         let input: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
         let mut state: [u32; 4] = input.clone();
@@ -412,6 +447,18 @@ mod tests {
         let expected: [u32; 4] = [0x046681e5, 0xe0cb199a, 0x48f8d37a, 0x2806264c];
 
         assert_eq_hex!(expected, state, "MixColumns({:#010x?}) output doesn't match", input);
+    }
+
+    #[test]
+    pub fn test_inv_mix_columns() {
+        let input: [u32; 4] = [0x046681e5, 0xe0cb199a, 0x48f8d37a, 0x2806264c];
+        let mut state: [u32; 4] = input.clone();
+
+        InvMixColumns(&mut state);
+
+        let expected: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
+
+        assert_eq_hex!(expected, state, "InvMixColumns({:#010x?}) output doesn't match", input);
     }
 
     pub fn subtest_aes_128(mut state: [u32; 4], key: [u32; 4], expected: [u32; 4]) {
