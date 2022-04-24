@@ -4,7 +4,15 @@ use aes::*;
 use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 
 fn subword_benchmark(c: &mut Criterion) {
-    c.bench_function("subword", |b| b.iter(|| SubWord(black_box(0))));
+    c.bench_function("SubWord", |b| b.iter(|| SubWord(black_box(0))));
+}
+
+fn shift_rows_benchmark(c: &mut Criterion) {
+    c.bench_function("ShiftRows", |b| b.iter(|| ShiftRows(black_box(&mut [0x98abcdef; 4]))));
+}
+
+fn inverse_shift_rows_benchmark(c: &mut Criterion) {
+    c.bench_function("InvShiftRows", |b| b.iter(|| InvShiftRows(black_box(&mut [0x98abcdef; 4]))));
 }
 
 fn key_expansion_benchmark(c: &mut Criterion) {
@@ -102,7 +110,7 @@ fn aes_decryption_benchmark(c: &mut Criterion) {
 criterion_group!{
     name = benches;
     config = Criterion::default().warm_up_time(Duration::from_secs(5)).sample_size(2500);
-    targets = subword_benchmark, key_expansion_benchmark, aes_encryption_benchmark, aes_decryption_benchmark
+    targets = subword_benchmark, key_expansion_benchmark, aes_encryption_benchmark, aes_decryption_benchmark, shift_rows_benchmark, inverse_shift_rows_benchmark
 }
 
 criterion_main!(benches);

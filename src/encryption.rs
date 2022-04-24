@@ -1,4 +1,4 @@
-use crate::{common::{transpose, rotl_word, gmul2, gmul3}, SubWord};
+use crate::{common::{gmul2, gmul3}, SubWord};
 
 macro_rules! create_aes_ecryption_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
@@ -39,16 +39,15 @@ pub fn SubBytes(state: &mut [u32; 4]) {
 /// As specified by AES, the input is in column-major order
 #[allow(non_snake_case)]
 pub fn ShiftRows(state: &mut [u32; 4]) {
-    let rows = transpose(*state);
+    let mut shifted_rows = [0u32; 4];
 
-    let shifted_rows = transpose([
-        rows[0],
-        rotl_word(rows[1], 1),
-        rotl_word(rows[2], 2),
-        rotl_word(rows[3], 3)
-    ]);
+    for i in 0..4 {
+        for j in 0..4 {
+            shifted_rows[i] |= state[(i + j) % 4] & (0xff << (8 * (4 - j - 1)));
+        }
+    }
 
-    for i in 0..state.len() {
+    for i in 0..4 {
         state[i] = shifted_rows[i];
     }
 }
@@ -100,13 +99,14 @@ mod tests {
 
     #[test]
     pub fn test_shift_rows() {
-        let mut input: [u32; 4] = [0xd42711ae, 0xe0bf98f1, 0xb8b45de5, 0x1e415230];
+        let input: [u32; 4] = [0xd42711ae, 0xe0bf98f1, 0xb8b45de5, 0x1e415230];
+        let mut state = input.clone();
 
-        ShiftRows(&mut input);
+        ShiftRows(&mut state);
 
         let expected: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
 
-        assert_eq_hex!(expected, input, "ShiftRows({:#010x?}) otuput doesn't match", input);
+        assert_eq_hex!(expected, state, "ShiftRows({:#010x?}) otuput doesn't match", input);
     }
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::{inverse_sbox, common::{transpose, rotl_word, gmul14, gmul11, gmul9, gmul13}};
+use crate::{inverse_sbox, common::{gmul14, gmul11, gmul9, gmul13}};
 
 macro_rules! create_aes_decryption_functions {
     ( $key_length:literal, $key_words_count:literal, $round_count:literal, $expanded_key_size:literal) => {
@@ -55,16 +55,15 @@ pub fn InvSubBytes(state: &mut [u32; 4]) {
 /// As specified by AES, the input is in column-major order
 #[allow(non_snake_case)]
 pub fn InvShiftRows(state: &mut [u32; 4]) {
-    let rows = transpose(*state);
+    let mut shifted_rows = [0u32; 4];
 
-    let shifted_rows = transpose([
-        rows[0],
-        rotl_word(rows[1], 3),
-        rotl_word(rows[2], 2),
-        rotl_word(rows[3], 1)
-    ]);
+    for i in 0..4 {
+        for j in 0..4 {
+            shifted_rows[i] |= state[(8 - j + i) % 4] & (0xff << (8 * (4 - j - 1)));
+        }
+    }
 
-    for i in 0..state.len() {
+    for i in 0..4 {
         state[i] = shifted_rows[i];
     }
 }
@@ -101,6 +100,18 @@ mod tests {
     use crate::{aes_128_decrypt, aes_196_decrypt, aes_256_decrypt};
 
     use super::*;
+
+    #[test]
+    pub fn test_inv_shift_rows() {
+        let input: [u32; 4] = [0xd4bf5d30, 0xe0b452ae, 0xb84111f1, 0x1e2798e5];
+        let mut state = input.clone();
+
+        InvShiftRows(&mut state);
+        let expected: [u32; 4] = [0xd42711ae, 0xe0bf98f1, 0xb8b45de5, 0x1e415230];
+
+
+        assert_eq_hex!(expected, state, "InvShiftRows({:#010x?}) otuput doesn't match", input);
+    }
 
     #[test]
     pub fn test_inverse_mix_column() {

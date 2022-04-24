@@ -1,9 +1,7 @@
-use crate::common::rotl_word;
-
 /// Performs a 1-byte left circular shift
 #[allow(non_snake_case)]
 pub const fn RotWord(word: u32) -> u32 {
-    rotl_word(word, 1)
+    (word << 8) | (word >> 24)
 }
 
 macro_rules! create_key_expansion_functions {
