@@ -4,7 +4,7 @@ use crate::constants::*;
 /// Performs XOR on each byte of a state with each byte of a round key
 #[allow(non_snake_case)]
 pub fn AddRoundKey(state: &mut [u32; 4], round_key: &[u32]) {
-    for i in 0..state.len() {
+    for i in 0..4 {
         state[i] ^= round_key[i];
     }
 }

@@ -45,7 +45,7 @@ pub const fn InvSubWord(word: u32) -> u32 {
 /// Performs the inverse AES S-box on each byte of a block
 #[allow(non_snake_case)]
 pub fn InvSubBytes(state: &mut [u32; 4]) {
-    for i in 0..state.len() {
+    for i in 0..4 {
         state[i] = InvSubWord(state[i]);
     }
 }

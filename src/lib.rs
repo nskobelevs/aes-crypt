@@ -9,7 +9,7 @@ mod decryption;
 pub use crate::constants::{sbox, inverse_sbox, rcon};
 pub use key_expansion::{RotWord};
 pub use encryption::{SubBytes, ShiftRows, MixColumns};
-pub use decryption::{InvSubBytes, InvShiftRows, InvMixColumns};
+pub use decryption::{InvSubBytes, InvShiftRows, InvMixColumns, InvSubWord};
 pub use common::{AddRoundKey, SubWord};
 
 use key_expansion::create_key_expansion_functions;
