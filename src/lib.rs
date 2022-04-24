@@ -40,6 +40,7 @@ macro_rules! create_gmul_funcs {
     };
 }
 
+// This creates a bunch of gmulX functions for Galois Multiplication
 create_gmul_funcs!(2, 3, 9, 11, 13, 14);
 
 /// Performs a 1-byte left circular shift
@@ -135,6 +136,8 @@ macro_rules! create_aes_functions {
     };
 }
 
+// Create the three AES variants
+// (key-size, key-size in words, number of rounds, expanded key size in words)
 create_aes_functions!(128, 4, 11, 44);
 create_aes_functions!(196, 6, 13, 52);
 create_aes_functions!(256, 8, 15, 60);
