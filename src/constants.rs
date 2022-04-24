@@ -156,11 +156,13 @@ pub const GMUL14: [u8; 256] = [
 ];
 
 /// Puts a value through the Rijndael S-box
+#[inline(always)]
 pub const fn sbox(value: u8) -> u8 {
     SBOX[value as usize]
 }
 
 /// Puts a value through the inverse Rijndael S-box
+#[inline(always)]
 pub const fn inverse_sbox(value: u8) -> u8 {
     INVERSE_SBOX[value as usize]
 }
@@ -168,15 +170,8 @@ pub const fn inverse_sbox(value: u8) -> u8 {
 /// Returns the round constant for the round i of key-expansion
 ///
 /// panics if i is out of bounds 1..=10
+#[inline(always)]
 pub const fn rcon(i: u8) -> u32 {
-    if i < 1 {
-        panic!("rcon() called with i < 1");
-    }
-
-    if i > 10 {
-        panic!("rcon() called with i > 10");
-    }
-
     RCON[(i - 1) as usize]
 }
 
